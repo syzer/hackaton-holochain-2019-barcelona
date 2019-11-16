@@ -50,6 +50,7 @@ const conductorConfig = {
 }
 
 orchestrator.registerScenario('Test hello holo', async (s, t) => {
+  const {alice, bob} = await s.players({alice: config, bob: config}, true);
 
 })
 
