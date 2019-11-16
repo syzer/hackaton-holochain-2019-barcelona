@@ -12,7 +12,7 @@ test_agent = true
 
 [[dnas]]
 file = '/home/dcts/code/hc/tuts_repo/1_hello_holo/dist/1_hello_holo.dna.json'
-hash = 'QmRhXB4s3SpbCkaV4Ufr7m4yezKUyHoqgtVBXgyZGGaV1g'
+hash = 'QmSL9oCDDmveq4Xt7GtYKv9A4UogJ5Vx6TcQ4eAMV6B6Fs'
 id = 'hc-run-dna'
 
 [[instances]]

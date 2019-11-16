@@ -33,7 +33,12 @@ mod hello_zome {
 
   #[zome_fn("hc_public")]
   fn hello_holo(name: String) -> ZomeApiResult<String> {
-    Ok(format!("Holo World Tutorial! Hello {}!", name).into())
+    Ok(format!("Hello {}!", name).into())
+  }
+
+  #[zome_fn("hc_public")]
+  fn generate_rand(name: String) -> ZomeApiResult<String> {
+    Ok(format!("Hello {}!", name).into())
   }
 
 }

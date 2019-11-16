@@ -11,26 +11,68 @@
 
   <body>
     <h1>Holochain GUI</h1>
-    <h2>Whats your name?</h2>
-    <input id="name-input" type="text" name="fname">
-    <button type="button" onclick="makeHttpRequest();">Say Hello</button>
-    <div class="result" style="margin-top: 50px;">
-      <h2>Response</h2>
-      <p class="inject-result"></p>
+    <div class="flex">
+      <div class="left-section">
+        <h2>Whats your name?</h2>
+        <input id="name-input" type="text" name="fname">
+        <button type="button" onclick="makeHttpRequest();">Say Hello</button>
+        <h2>Generate Random Number</h2>
+        <button type="button" onclick="makeHttpRequest();">Generate</button>
+        <h2>Play Cointoss</h2>
+        <input id="name-input" type="text" name="fname">
+        <button type="button" onclick="makeHttpRequest();">Play</button>
+      </div>
+      <div class="right-section">
+        <div class="result">
+          <h2>Response Log</h2>
+          <p class="inject-result"></p>
+        </div>
+      </div>
     </div>
   </body>
 </html>
 
+<style>
+  body {
+    /*background-color: #131920;*/
+    /*background-color: #161f27;*/
+
+  }
+  .right-section,
+  .left-section {
+    min-width: 200px;
+  }
+  .right-section {
+    padding: 10px 30px;
+    border-radius: 6px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    margin-left: 60px;
+    background-color: rgba(255,255,255,0.1);
+    overflow: hidden;
+    max-height: 450px;
+  }
+  .result > h2 {
+    /*color: black;*/
+  }
+  .flex {
+    display: flex;
+    justify-content: start;
+  }
+</style>
+
 <script>
   const makeHttpRequest = () => {
     // grab your name
-    const name = document.getElementById("name-input").value;
+    const input = document.getElementById("name-input");
+    const name = input.value;
+    input.value = "";
     // create http request
     const xhr = new XMLHttpRequest();
     // response handling
     xhr.onload = function () {
       const responseString = JSON.parse(JSON.parse(this.responseText).result).Ok;
-      document.querySelector(".inject-result").innerText = responseString;
+      const html = `<p style="line-height:12px; font-size:12px;">${responseString}</p>`;
+      document.querySelector(".inject-result").insertAdjacentHTML("afterbegin", html);
     };
     // data to send (HOLOCHAIN SPECIFICATION)
     const toSend = {
@@ -51,3 +93,4 @@
     xhr.send(JSON.stringify(toSend));
   };
 </script>
+
