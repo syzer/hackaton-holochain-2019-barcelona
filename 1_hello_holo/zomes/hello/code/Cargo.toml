@@ -12,6 +12,7 @@ hdk = { git = "https://github.com/holochain/holochain-rust", tag = "v0.0.38-alph
 hdk_proc_macros = { git = "https://github.com/holochain/holochain-rust", tag = "v0.0.38-alpha14" }
 holochain_wasm_utils = { git = "https://github.com/holochain/holochain-rust", tag = "v0.0.38-alpha14" }
 holochain_json_derive = "=0.0.1-alpha2"
+rand = { git = "https://github.com/rust-lang-nursery/rand.git" }
 
 [lib]
 path = "src/lib.rs"
