@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+
+    <title>Hello GUI</title>
+    <meta name="description" content="GUI for a Holochain app" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/dark.min.css"/>
+  </head>
+
+  <body>
+    <h1>Holochain GUI</h1>
+    <h2>Whats your name?</h2>
+    <input id="name-input" type="text" name="fname">
+    <button type="button" onclick="makeHttpRequest();">Say Hello</button>
+    <div class="result" style="margin-top: 50px;">
+      <h2>Response</h2>
+      <p class="inject-result"></p>
+    </div>
+  </body>
+</html>
+
+<script>
+  const makeHttpRequest = () => {
+    // grab your name
+    const name = document.getElementById("name-input").value;
+    // create http request
+    const xhr = new XMLHttpRequest();
+    // response handling
+    xhr.onload = function () {
+      const responseString = JSON.parse(JSON.parse(this.responseText).result).Ok;
+      document.querySelector(".inject-result").innerText = responseString;
+    };
+    // data to send (HOLOCHAIN SPECIFICATION)
+    const toSend = {
+      "id": "0",
+      "jsonrpc": "2.0",
+      "method": "call",
+      "params": {
+        "instance_id": "test-instance",
+        "zome": "hello",
+        "function": "hello_holo",
+        "args": {
+          "name": name
+        }
+      }
+    };
+    xhr.open("POST", "http://127.0.0.1:8888"); // holochain server needs to be up and running
+    xhr.setRequestHeader("Content-type", "application/json");
+    xhr.send(JSON.stringify(toSend));
+  };
+</script>

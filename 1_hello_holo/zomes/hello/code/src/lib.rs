@@ -21,19 +21,19 @@ use hdk_proc_macros::zome;
 #[zome]
 mod hello_zome {
 
-    #[init]
-    fn init() {
-        Ok(())
-    }
+  #[init]
+  fn init() {
+    Ok(())
+  }
 
-    #[validate_agent]
-    pub fn validate_agent(validation_data: EntryValidationData<AgentId>) {
-        Ok(())
-    }
+  #[validate_agent]
+  pub fn validate_agent(validation_data: EntryValidationData<AgentId>) {
+    Ok(())
+  }
 
-    #[zome_fn("hc_public")]
-    fn hello_holo(name: String) -> ZomeApiResult<String> {
-      Ok(format!("Holo World Tutorial! Hello {}!", name).into())
-    }
+  #[zome_fn("hc_public")]
+  fn hello_holo(name: String) -> ZomeApiResult<String> {
+    Ok(format!("Holo World Tutorial! Hello {}!", name).into())
+  }
 
 }
