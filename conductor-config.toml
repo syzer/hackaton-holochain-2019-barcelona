@@ -11,8 +11,8 @@ public_address = 'HcScjN8wBwrn3tuyg89aab3a69xsIgdzmX5P9537BqQZ5A7TEZu7qCY4Xzzjhm
 test_agent = true
 
 [[dnas]]
-file = '/home/dcts/code/hc/tuts_repo/1_hello_holo/dist/1_hello_holo.dna.json'
-hash = 'QmNwvWRLTythfrkMmaBTa1VNPvXr2uchkWoyacF9MD2N5N'
+file = '/home/dcts/code/hc/tuts_repo/dist/tuts_repo.dna.json'
+hash = 'QmXuPFimMCoYQrXqX9vr1vve8JtpQ7smfkw1LugqEhyWTr'
 id = 'hc-run-dna'
 
 [[instances]]

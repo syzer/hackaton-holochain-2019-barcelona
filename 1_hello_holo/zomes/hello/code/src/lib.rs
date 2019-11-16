@@ -6,6 +6,9 @@ extern crate serde;
 extern crate serde_derive;
 extern crate serde_json;
 extern crate holochain_json_derive;
+extern crate rand; // add rand package to generate random numbers
+
+use rand::Rng;
 
 use hdk::{
     error::ZomeApiResult,
@@ -33,7 +36,14 @@ mod hello_zome {
 
   #[zome_fn("hc_public")]
   fn hello_holo(name: String) -> ZomeApiResult<String> {
-    Ok(format!("Holo World Tutorial! Hello {}!", name).into())
+    Ok(format!("Hello {}!", name).into())
+  }
+
+  #[zome_fn("hc_public")]
+  fn generate_rand() -> ZomeApiResult<String> {
+    let mut rng = rand::thread_rng();
+    let random_float = rng.gen::<f64>();
+    Ok(format!("your random number: {}", random_float).into())
   }
 
 }
