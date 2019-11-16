@@ -29,10 +29,12 @@ const orchestrator = new Orchestrator({
 
   globalConfig: {
     logger: false,
-    network: {
-      type: 'sim2h',
-      sim2h_url: 'wss://sim2h.holochain.org:9000',
-    },
+    network: 'memory',
+    // OFFICIAL SOLUTION -> but with memory it works as well, so we just leave it
+    // network: {
+    //   type: 'sim2h',
+    //   sim2h_url: 'wss://sim2h.holochain.org:9000',
+    // },
   },
 
   // the following are optional:
@@ -50,12 +52,20 @@ const config = {
   }
 }
 
-orchestrator.registerScenario('Test hello holo', async (s, t) => {
+// test1
+orchestrator.registerScenario('Test hello holo TEST1', async (s, t) => {
   const {alice, bob} = await s.players({alice: config, bob: config}, true);
   const result = await alice.call('1_hello_holo', 'hello', 'hello_holo', {"name": "some String"});
-  console.log(result)
   t.ok(result.Ok)
   t.deepEqual(result, { Ok: 'Holo World Tutorial! Hello some String!' })
+})
+
+// test2
+orchestrator.registerScenario('Test hello holo TEST2', async (s, t) => {
+  const {alice, bob} = await s.players({alice: config, bob: config}, true);
+  const result = await alice.call('1_hello_holo', 'hello', 'hello_holo', {"name": "John"});
+  t.ok(result.Ok)
+  t.deepEqual(result, { Ok: 'Holo World Tutorial! Hello John!' })
 })
 
 orchestrator.run()
