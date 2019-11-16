@@ -2,6 +2,7 @@
 extern crate hdk;
 extern crate hdk_proc_macros;
 extern crate serde;
+#[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
 extern crate holochain_json_derive;
@@ -25,7 +26,7 @@ mod hello_zome {
     pub fn validate_agent(validation_data: EntryValidationData<AgentId>) {
         Ok(())
     }
-`
+
     #[zome_fn("hc_public")]
     fn hello_holo() -> ZomeApiResult<String> {
         Ok("Hello Holo".into())
