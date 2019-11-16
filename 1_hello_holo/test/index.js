@@ -28,8 +28,11 @@ const orchestrator = new Orchestrator({
   ),
 
   globalConfig: {
-    logger: true,
-    network: 'memory',  // must use singleConductor middleware if using in-memory network
+    logger: false,
+    network: {
+      type: 'sim2h',
+      sim2h_url: 'wss://sim2h.holochain.org:9000',
+    },
   },
 
   // the following are optional:
@@ -42,25 +45,30 @@ const orchestrator = new Orchestrator({
 
 const conductorConfig = {
   instances: {
-    myInstanceName: Config.dna(dnaPath, 'scaffold-test')
+    "1_hello_holo": Config.dna(dnaPath, '1_hello_holo'),
   }
 }
 
-orchestrator.registerScenario("description of example test", async (s, t) => {
+orchestrator.registerScenario('Test hello holo', async (s, t) => {
 
-  const {alice, bob} = await s.players({alice: conductorConfig, bob: conductorConfig})
-
-  // Make a call to a Zome function
-  // indicating the function, and passing it an input
-  const addr = await alice.call("myInstanceName", "my_zome", "create_my_entry", {"entry" : {"content":"sample content"}})
-
-  // Wait for all network activity to
-  await s.consistency()
-
-  const result = await alice.call("myInstanceName", "my_zome", "get_my_entry", {"address": addr.Ok})
-
-  // check for equality of the actual and expected results
-  t.deepEqual(result, { Ok: { App: [ 'my_entry', '{"content":"sample content"}' ] } })
 })
+
+
+// orchestrator.registerScenario("description of example test", async (s, t) => {
+
+//   const {alice, bob} = await s.players({alice: conductorConfig, bob: conductorConfig})
+
+//   // Make a call to a Zome function
+//   // indicating the function, and passing it an input
+//   const addr = await alice.call("myInstanceName", "my_zome", "create_my_entry", {"entry" : {"content":"sample content"}})
+
+//   // Wait for all network activity to
+//   await s.consistency()
+
+//   const result = await alice.call("myInstanceName", "my_zome", "get_my_entry", {"address": addr.Ok})
+
+//   // check for equality of the actual and expected results
+//   t.deepEqual(result, { Ok: { App: [ 'my_entry', '{"content":"sample content"}' ] } })
+// })
 
 orchestrator.run()
