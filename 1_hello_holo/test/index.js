@@ -43,7 +43,8 @@ const orchestrator = new Orchestrator({
   },
 })
 
-const conductorConfig = {
+// TODO check if still required
+const config = {
   instances: {
     "1_hello_holo": Config.dna(dnaPath, '1_hello_holo'),
   }
@@ -51,25 +52,10 @@ const conductorConfig = {
 
 orchestrator.registerScenario('Test hello holo', async (s, t) => {
   const {alice, bob} = await s.players({alice: config, bob: config}, true);
-
+  const result = await alice.call('1_hello_holo', 'hello', 'hello_holo', {"name": "some String"});
+  console.log(result)
+  t.ok(result.Ok)
+  t.deepEqual(result, { Ok: 'Holo World Tutorial! Hello some String!' })
 })
-
-
-// orchestrator.registerScenario("description of example test", async (s, t) => {
-
-//   const {alice, bob} = await s.players({alice: conductorConfig, bob: conductorConfig})
-
-//   // Make a call to a Zome function
-//   // indicating the function, and passing it an input
-//   const addr = await alice.call("myInstanceName", "my_zome", "create_my_entry", {"entry" : {"content":"sample content"}})
-
-//   // Wait for all network activity to
-//   await s.consistency()
-
-//   const result = await alice.call("myInstanceName", "my_zome", "get_my_entry", {"address": addr.Ok})
-
-//   // check for equality of the actual and expected results
-//   t.deepEqual(result, { Ok: { App: [ 'my_entry', '{"content":"sample content"}' ] } })
-// })
 
 orchestrator.run()
