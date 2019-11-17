@@ -14,12 +14,12 @@
       <div class="left-section">
         <h2>Whats your name?</h2>
         <input id="name-input" type="text" name="fname">
-        <button type="button" onclick="makeHttpRequest();">Say Hello</button>
+        <button type="button" onclick="getDataFromHcApp();">Say Hello</button>
         <h2>Generate Random Number</h2>
-        <button type="button" onclick="makeHttpRequest();">Generate</button>
+        <button type="button" onclick="getDataFromHcApp();">Generate</button>
         <h2>Play Cointoss</h2>
         <input id="name-input" type="text" name="fname">
-        <button type="button" onclick="makeHttpRequest();">Play</button>
+        <button type="button" onclick="getDataFromHcApp();">Play</button>
       </div>
       <div class="right-section">
         <div class="result">
@@ -28,6 +28,9 @@
         </div>
       </div>
     </div>
+
+    <!-- ADD HOLOCHAIN WEBSOCKET FILES DOWNLOADED FROM GITHUB -->
+    <script type="text/javascript" src="hc-web-client/hc-web-client-0.5.1.browser.min.js"></script>
   </body>
 </html>
 
@@ -52,6 +55,28 @@
 </style>
 
 <script>
+  /*
+   * DECISION which method to use (hardcoded)
+   * for demonstration purpose only
+   */
+  const getDataFromHcApp = () => {
+    // HTTP IMPLEMENTATION (run $ hc run -i http)
+    // makeHttpRequest();
+
+    // WEBSOCKET IMPLEMENTATION (run $ hc run -p 3401)
+    connectWebsocket();
+    getDataFromWebSocket();
+  }
+
+
+
+  /*
+   * HTTP request implementation
+   * This implementation is working when you run your hc app in http mode:
+   * => start the hc app by typing this command:
+   * $ hc run -i http
+   * (this will run on port 8888)
+   */
   const makeHttpRequest = () => {
     // grab your name
     const input = document.getElementById("name-input");
@@ -61,9 +86,8 @@
     const xhr = new XMLHttpRequest();
     // response handling
     xhr.onload = function () {
-      const responseString = JSON.parse(JSON.parse(this.responseText).result).Ok;
-      const html = `<p style="line-height:12px; font-size:12px;">${responseString}</p>`;
-      document.querySelector(".inject-result").insertAdjacentHTML("afterbegin", html);
+      const zomeFunctionOutput = JSON.parse(JSON.parse(this.responseText).result).Ok;
+      injectResult(zomeFunctionOutput);
     };
     // data to send (HOLOCHAIN SPECIFICATION)
     const toSend = {
@@ -83,5 +107,42 @@
     xhr.setRequestHeader("Content-type", "application/json");
     xhr.send(JSON.stringify(toSend));
   };
-</script>
 
+
+
+  /*
+   * WEBSOCKET CONNECTION Implementation
+   * following the tutorial on: https://developer.holochain.org/docs/tutorials/coreconcepts/hello_gui/
+   * this is an alternative way of establishing a connection to the holochain app
+   * using a websocket. Its more elaborate since you can PUSH data to the frontend (although not used in this example)
+   * => start hc app by running the command:
+   * $ hc run -p 3401
+   * (will run on defined port 3401)
+   */
+  let holochain_connection;
+  const connectWebsocket = () => {
+    holochain_connection = holochainclient.connect({
+      url: 'ws://localhost:3401',
+    });
+  };
+
+  function getDataFromWebSocket() {
+    holochain_connection.then(({callZome, close}) => {
+    callZome('test-instance', 'hello', 'hello_holo')({args: {}})
+      .then((result) => {
+        console.log(result);
+        console.log(JSON.parse(result).Ok);
+      })
+    })
+  }
+
+
+
+  /*
+   * INJECT RESULT TO LOG DIV
+   */
+  const injectResult = (str) => {
+    const html = `<p style="line-height:12px; font-size:12px;">${str}</p>`;
+    document.querySelector(".inject-result").insertAdjacentHTML("afterbegin", html);
+  }
+</script>
