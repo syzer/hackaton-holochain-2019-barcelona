@@ -24,15 +24,21 @@
         </div>
       </div>
       <div class="right-section">
-        <h2 class="wide-letters" style="margin-top: 0">Send a message</h2>
+        <h2 class="wide-letters" style="margin-top: 0">Send a message (ALICE: 3401)</h2>
         <input id="name-input" type="text" name="fname">
-        <button type="button" onclick="getDataFromHcApp();">Send</button>
+        <button type="button" onclick="getDataFromHcApp('3401');">Send</button>
+        <br>
+        <br>
+        <br>
+        <h2 class="wide-letters" style="margin-top: 0">Send a message (BOB: 3402)</h2>
+        <input id="name-input" type="text" name="fname">
+        <button type="button" onclick="getDataFromHcApp('3402');">Send</button>
       </div>
     </div>
     <!-- ADD HOLOCHAIN WEBSOCKET FILES DOWNLOADED FROM GITHUB -->
     <script type="text/javascript" src="hc-web-client/hc-web-client-0.5.1.browser.min.js"></script>
     <!-- The core Firebase JS SDK is always required and must be listed first -->
-    <script src="https://wwwsaveHash.gstatic.com/firebasejs/7.4.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.4.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.4.0/firebase-firestore.js"></script>
     <script>
       // Your web app's Firebase configuration
@@ -133,9 +139,9 @@
    * DECISION which method to use (hardcoded)
    * for demonstration purpose only
    */
-  const getDataFromHcApp = () => {
+  const getDataFromHcApp = (portNumber) => {
     // HTTP IMPLEMENTATION (run $ hc run -i http)
-    makeHttpRequest();
+    makeHttpRequest(portNumber);
     // WEBSOCKET IMPLEMENTATION (run $ hc run -p 3401)
     // getDataFromWebSocket();
   }
@@ -147,7 +153,7 @@
    * $ hc run -i http
    * (this will run on port 8888)
    */
-  const makeHttpRequest = () => {
+  const makeHttpRequest = (portNumber) => {
     // grab your name
     console.log("custom HTTP implementation started!")
     const input = document.getElementById("name-input")
@@ -174,7 +180,7 @@
         }
       }
     };
-    xhr.open("POST", "http://127.0.0.1:8888"); // holochain server needs to be up and running
+    xhr.open("POST", `http://127.0.0.1:${portNumber}`); // holochain server needs to be up and running
     xhr.setRequestHeader("Content-type", "application/json");
     xhr.send(JSON.stringify(toSend));
   };
