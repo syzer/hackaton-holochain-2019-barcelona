@@ -15,6 +15,12 @@ hc run -i http
 ```bash
 hc package # compile first
 hc test # run test
+
+# "MANUAL" WAY OF TESTING
+# run server in http mode (tests make http requests)
+hc run -i http
+# test using npm (navigate to test folder first!)
+npm start
 ```
 
 ## test

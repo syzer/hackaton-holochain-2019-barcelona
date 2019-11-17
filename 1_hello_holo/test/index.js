@@ -68,4 +68,17 @@ orchestrator.registerScenario('Test hello holo TEST2', async (s, t) => {
   t.deepEqual(result, { Ok: 'Hello John!' })
 })
 
+// additional tests
+orchestrator.registerScenario('Test HelloMe tutorial', async (s, t) => {
+  const {alice, bob} = await s.players({alice: config, bob: config}, true);
+  const create_result = await alice.call('1_hello_holo', "hello", "create_person", {"person": { "name" : "Alice" }});
+  t.ok(create_result.Ok);
+  const alice_person_address = create_result.Ok;
+  await s.consistency()
+  const retrieve_result = await alice.call('1_hello_holo', "hello", "retrieve_person", {"address": alice_person_address });
+  t.ok(retrieve_result.Ok);
+  t.deepEqual(retrieve_result, { Ok: {"name": "Alice"} })
+
+})
+
 orchestrator.run()
