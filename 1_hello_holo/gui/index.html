@@ -6,43 +6,81 @@
     <title>Hello GUI</title>
     <meta name="description" content="GUI for a Holochain app" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/dark.min.css"/>
+    <!-- FONTAWESOME -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
   </head>
 
   <body>
-    <h1>Holochain GUI</h1>
+    <h1 id="title" class="wide-letters">DHT Universe</h1>
     <div class="flex">
       <div class="left-section">
-        <h2>Whats your name?</h2>
-        <input id="name-input" type="text" name="fname">
-        <button type="button" onclick="getDataFromHcApp();">Say Hello</button>
-        <h2>Generate Random Number</h2>
-        <button type="button" onclick="getDataFromHcApp();">Generate</button>
-        <h2>Play Cointoss</h2>
-        <input id="name-input" type="text" name="fname">
-        <button type="button" onclick="getDataFromHcApp();">Play</button>
-      </div>
-      <div class="right-section">
-        <div class="result">
-          <h2>Response Log</h2>
+        <div class="result pos-relative">
+          <div id="refresh-icon" onclick="displayAllDataFromDht(3401);">
+            <i class="fas fa-sync-alt"></i>
+          </div>
+          <h2 id="all-messages-title" class="wide-letters">All Messages</h2>
+          <p class="dont-spam-subtitle">(plese don't spam)</p>
           <p class="inject-result"></p>
         </div>
+      </div>
+      <div class="right-section">
+        <h2 class="wide-letters" style="margin-top: 0">Send a message (ALICE: 3401)</h2>
+        <input class="content-input" data-actor="alice" type="text" name="fname">
+        <button type="button" onclick="sendMessageToDht('3401', 'alice');">Send</button>
+        <br>
+        <br>
+        <br>
+        <h2 class="wide-letters" style="margin-top: 0">Send a message (BOB: 3402)</h2>
+        <input class="content-input" data-actor="bob" type="text" name="fname">
+        <button type="button" onclick="sendMessageToDht('3402', 'bob');">Send</button>
       </div>
     </div>
     <!-- ADD HOLOCHAIN WEBSOCKET FILES DOWNLOADED FROM GITHUB -->
     <script type="text/javascript" src="hc-web-client/hc-web-client-0.5.1.browser.min.js"></script>
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.4.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.4.0/firebase-firestore.js"></script>
+    <script>
+      // Your web app's Firebase configuration
+      var firebaseConfig = {
+        apiKey: "AIzaSyCcd4KnLRhdXHM3t-z3yBGfT2KxTDlZdkc",
+        authDomain: "globalchat-c17b6.firebaseapp.com",
+        databaseURL: "https://globalchat-c17b6.firebaseio.com",
+        projectId: "globalchat-c17b6",
+        storageBucket: "globalchat-c17b6.appspot.com",
+        messagingSenderId: "225523359472",
+        appId: "1:225523359472:web:92a29ad5b7d19f984aec35"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      var db = firebase.firestore();
+    </script>
   </body>
 </html>
 
 <style>
+  #refresh-icon {
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+  }
+  #refresh-icon > i {
+    font-size: 29px;
+  }
+  #title {
+    margin-top: 60px;
+    margin-bottom: 40px;
+  }
   .right-section,
   .left-section {
-    min-width: 200px;
+    min-width: 450px;
   }
-  .right-section {
+  .left-section {
     padding: 10px 30px;
     border-radius: 6px;
     box-shadow: 0 0 15px rgba(0,0,0,0.3);
-    margin-left: 60px;
+    margin-right: 60px;
     background-color: rgba(255,255,255,0.1);
     overflow: hidden;
     max-height: 450px;
@@ -51,41 +89,88 @@
     display: flex;
     justify-content: start;
   }
+  .pos-relative {
+    position: relative;
+  }
+
+  #all-messages-title {
+    margin-bottom: 0;
+  }
+  .dont-spam-subtitle {
+    margin: 0;
+  }
+  .wide-letters {
+    letter-spacing: 2px;
+  }
 </style>
+
+<script>
+  const getAllHashes = () => {
+    return db.collection("messages").get()
+      .then(function(querySnapshot) {
+        const allHashes = [];
+        querySnapshot.forEach(function(doc) {
+          // doc.data() is never undefined for query doc snapshots
+          allHashes.push(doc.data().hash)
+        });
+        console.log(allHashes);
+        return allHashes;
+      })
+      .catch(function(error) {
+        console.log("Error getting documents: ", error);
+      });
+  };
+
+  const saveHash = (hash) => {
+    db.collection("messages").doc(hash).set({ hash: hash })
+    .then(function() {
+      console.log("Document successfully written!");
+    })
+    .catch(function(error) {
+      console.error("Error writing document: ", error);
+    });
+  };
+
+  const displayAllDataFromDht = (portNumber) => {
+    // get all hashes from firebase
+    getAllHashes().then((allHashes) => {
+      // remove all entries
+      resetResults();
+      // iterate over entries -> get all content from DHT
+      allHashes.forEach(hash => {
+        retrieveMessageFromDht(hash, portNumber);
+      });
+    });
+  }
+
+
+</script>
+
+
+
+
 
 <script>
   /*
    * DECISION which method to use (hardcoded)
    * for demonstration purpose only
    */
-  const getDataFromHcApp = () => {
+  const sendMessageToDht = (portNumber, actor) => {
     // HTTP IMPLEMENTATION (run $ hc run -i http)
-    // makeHttpRequest();
+    makeHttpRequest(portNumber, actor);
     // WEBSOCKET IMPLEMENTATION (run $ hc run -p 3401)
-    getDataFromWebSocket();
+    // getDataFromWebSocket();
   }
 
-
-
-  /*
-   * HTTP request implementation
-   * This implementation is working when you run your hc app in http mode:
-   * => start the hc app by typing this command:
-   * $ hc run -i http
-   * (this will run on port 8888)
-   */
-  const makeHttpRequest = () => {
-    // grab your name
-    console.log("custom HTTP implementation started!")
-    const input = document.getElementById("name-input")
-    const name = input.value;
-    input.value = "";
-    // create http request
+  const retrieveMessageFromDht = (hash, portNumber) => {
     const xhr = new XMLHttpRequest();
     // response handling
     xhr.onload = function () {
-      const zomeFunctionOutput = JSON.parse(JSON.parse(this.responseText).result).Ok;
-      injectResult(zomeFunctionOutput);
+      console.log(this);
+      console.log(this.responseText);
+      const message = JSON.parse(JSON.parse(this.responseText).result).Ok.content;
+      console.log(`converted back: ${message}`);
+      injectMessage(message);
     };
     // data to send (HOLOCHAIN SPECIFICATION)
     const toSend = {
@@ -95,18 +180,58 @@
       "params": {
         "instance_id": "test-instance",
         "zome": "hello",
-        "function": "hello_holo",
+        "function": "retrieve_message",
         "args": {
-          "name": name
+          "address": hash
         }
       }
     };
-    xhr.open("POST", "http://127.0.0.1:8888"); // holochain server needs to be up and running
+    xhr.open("POST", `http://127.0.0.1:${portNumber}`); // holochain server needs to be up and running
+    xhr.setRequestHeader("Content-type", "application/json");
+    xhr.send(JSON.stringify(toSend));
+  }
+
+  /*
+   * HTTP request implementation
+   * This implementation is working when you run your hc app in http mode:
+   * => start the hc app by typing this command:
+   * $ hc run -i http
+   * (this will run on port 8888)
+   */
+  const makeHttpRequest = (portNumber, actor) => {
+    // grab the message content
+    console.log("custom HTTP implementation started!")
+    const input = document.querySelector(`.content-input[data-actor=${actor}]`)
+    const content = input.value;
+    input.value = "";
+    // create http request
+    const xhr = new XMLHttpRequest();
+    // response handling
+    xhr.onload = function () {
+      const zomeFunctionOutput = JSON.parse(JSON.parse(this.responseText).result).Ok;
+      console.log(zomeFunctionOutput);
+      saveHash(zomeFunctionOutput);
+    };
+    // data to send (HOLOCHAIN SPECIFICATION)
+    const toSend = {
+      "id": "0",
+      "jsonrpc": "2.0",
+      "method": "call",
+      "params": {
+        "instance_id": "test-instance",
+        "zome": "hello",
+        "function": "create_message",
+        "args": {
+          "message": {
+            "content": content
+          }
+        }
+      }
+    };
+    xhr.open("POST", `http://127.0.0.1:${portNumber}`); // holochain server needs to be up and running
     xhr.setRequestHeader("Content-type", "application/json");
     xhr.send(JSON.stringify(toSend));
   };
-
-
 
   /*
    * WEBSOCKET CONNECTION Implementation
@@ -117,30 +242,32 @@
    * $ hc run -p 3401
    * (will run on defined port 3401)
    */
-  let holochain_connection;
-  function getDataFromWebSocket() {
-    console.log("websocket implementation started!");
-    holochain_connection = holochainclient.connect({
-      url: 'ws://localhost:3401',
-    });
-    console.log("connection esablished!");
-    holochain_connection.then(({callZome, close}) => {
-      const name = document.getElementById("name-input").value;
-      callZome('test-instance', 'hello', 'hello_holo')({"name": name})
-        .then((result) => {
-          console.log(result);
-          injectResult(JSON.parse(result).Ok);
-        })
-    })
-  }
-
-
+  // let holochain_connection;
+  // function getDataFromWebSocket() {
+  //   console.log("websocket implementation started!");
+  //   holochain_connection = holochainclient.connect({
+  //     url: 'ws://localhost:3401',
+  //   });
+  //   console.log("connection esablished!");
+  //   holochain_connection.then(({callZome, close}) => {
+  //     const name = document.getElementById("name-input").value;
+  //     callZome('test-instance', 'hello', 'hello_holo')({"name": name})
+  //       .then((result) => {
+  //         console.log(result);
+  //         injectResult(JSON.parse(result).Ok);
+  //       })
+  //   })
+  // }
 
   /*
    * INJECT RESULT TO LOG DIV
    */
-  const injectResult = (str) => {
+  const injectMessage = (str) => {
     const html = `<p style="line-height:12px; font-size:12px;">${str}</p>`;
     document.querySelector(".inject-result").insertAdjacentHTML("afterbegin", html);
-  }
+  };
+
+  const resetResults = () => {
+    document.querySelector(".inject-result").innerHTML = "";
+  };
 </script>

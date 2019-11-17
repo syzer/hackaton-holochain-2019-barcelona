@@ -36,8 +36,8 @@ use hdk_proc_macros::zome;
 
 
 #[derive(Serialize, Deserialize, Debug, DefaultJson, Clone)]
-pub struct Person {
-  name: String,
+pub struct Message {
+  content: String
 }
 
 
@@ -63,33 +63,34 @@ mod hello_zome {
   fn generate_rand() -> ZomeApiResult<String> {
     let mut rng = rand::thread_rng();
     let random_float = rng.gen::<f64>();
-    Ok(format!("your random number: {}", random_float).into())
+    Ok(format!("yyour random number: {}", random_float).into())
   }
 
   #[entry_def]
-  fn person_entry_def() -> ValidatingEntryType {
+  fn message_entry_def() -> ValidatingEntryType {
     entry!(
-      name: "person",
-      description: "Person to say hello to",
-      sharing: Sharing::Private,
+      name: "message",
+      description: "Message to propagate",
+      sharing: Sharing::Public,
       validation_package: || {
         hdk::ValidationPackageDefinition::Entry
       },
-      validation: | _validation_data: hdk::EntryValidationData<Person>| {
+      validation: | _validation_data: hdk::EntryValidationData<Message>| {
         Ok(())
       }
     )
   }
 
   #[zome_fn("hc_public")]
-  pub fn create_person(person: Person) -> ZomeApiResult<Address> {
-    let entry = Entry::App("person".into(), person.into());
+  pub fn create_message(message: Message) -> ZomeApiResult<Address> {
+    let entry = Entry::App("message".into(), message.into());
     let address = hdk::commit_entry(&entry)?;
     Ok(address)
+    // link to anchor
   }
 
   #[zome_fn("hc_public")]
-  fn retrieve_person(address: Address) -> ZomeApiResult<Person> {
+  fn retrieve_message(address: Address) -> ZomeApiResult<Message> {
     hdk::utils::get_as_type(address)
   }
 }
