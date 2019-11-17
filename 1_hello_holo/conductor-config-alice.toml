@@ -1,0 +1,35 @@
+[[agents]]
+id = 'alice'
+name = 'Alice'
+keystore_file = 'alice.key'
+public_address = 'HcSCJwsVZ4MT63fqatPwrrpyTMngyj56y77E6pTz8H6NsTur5Ea93GOMSn6Oisa'
+test_agent = true
+
+[[dnas]]
+file = 'dist/1_hello_holo.dna.json'
+hash = 'QmQejrWBhrXrXwqHhWwbBZik7tF3bPqDsKmMpjc5Jn5EYE'
+# hash = 'QmS4zPxp13YneR43Wk15UEJxRYv2JjJhCMpVK4zpRtjGtz'
+id = 'hc-run-dna'
+
+[[instances]]
+agent = 'alice'
+dna = 'hc-run-dna'
+id = 'test-instance'
+
+[instances.storage]
+type = "memory"
+
+[[interfaces]]
+admin = true
+id = 'http-interface'
+
+[[interfaces.instances]]
+id = 'test-instance'
+
+[interfaces.driver]
+port = 3401
+type = 'http'
+
+[network]
+type = 'sim2h'
+sim2h_url = 'wss://sim2h.holochain.org:9000'

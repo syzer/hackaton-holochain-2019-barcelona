@@ -63,7 +63,7 @@ mod hello_zome {
   fn generate_rand() -> ZomeApiResult<String> {
     let mut rng = rand::thread_rng();
     let random_float = rng.gen::<f64>();
-    Ok(format!("your random number: {}", random_float).into())
+    Ok(format!("yyour random number: {}", random_float).into())
   }
 
   #[entry_def]
@@ -86,6 +86,7 @@ mod hello_zome {
     let entry = Entry::App("message".into(), message.into());
     let address = hdk::commit_entry(&entry)?;
     Ok(address)
+    // link to anchor
   }
 
   #[zome_fn("hc_public")]
