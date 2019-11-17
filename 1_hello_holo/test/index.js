@@ -68,4 +68,9 @@ orchestrator.registerScenario('Test hello holo TEST2', async (s, t) => {
   t.deepEqual(result, { Ok: 'Hello John!' })
 })
 
+// additional tests
+orchestrator.registerScenario('Test HelloMe tutorial', async (s, t) => {
+
+})
+
 orchestrator.run()
