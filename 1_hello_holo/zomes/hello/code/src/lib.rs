@@ -46,18 +46,18 @@ mod hello_zome {
     Ok(format!("your random number: {}", random_float).into())
   }
 
-  #[entry_def]
-  fn person_entry_def() -> ValidatingEntryType {
-    entry!(
-      name: "person",
-      description: "Person to say hello to",
-      sharing: Sharing::Private,
-      validation_package: || {
-        hdk::ValidationPackageDefinition::Entry
-      },
-      validation: | _validation_data: hdk::EntryValidationData<Person>| {
-        Ok(())
-      }
-    )
-  }
+  // #[entry_def]
+  // fn person_entry_def() -> ValidatingEntryType {
+  //   entry!(
+  //     name: "person",
+  //     description: "Person to say hello to",
+  //     sharing: Sharing::Private,
+  //     validation_package: || {
+  //       hdk::ValidationPackageDefinition::Entry
+  //     },
+  //     validation: | _validation_data: hdk::EntryValidationData<Person>| {
+  //       Ok(())
+  //     }
+  //   )
+  // }
 }
