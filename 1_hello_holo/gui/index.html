@@ -11,11 +11,11 @@
   </head>
 
   <body>
-    <h1 id="title" class="wide-letters">Holochain Global Chat</h1>
+    <h1 id="title" class="wide-letters">DHT Universe</h1>
     <div class="flex">
       <div class="left-section">
         <div class="result pos-relative">
-          <div id="refresh-icon">
+          <div id="refresh-icon" onclick="displayAllDataFromDht(3401);">
             <i class="fas fa-sync-alt"></i>
           </div>
           <h2 id="all-messages-title" class="wide-letters">All Messages</h2>
@@ -25,14 +25,14 @@
       </div>
       <div class="right-section">
         <h2 class="wide-letters" style="margin-top: 0">Send a message (ALICE: 3401)</h2>
-        <input id="name-input" type="text" name="fname">
-        <button type="button" onclick="getDataFromHcApp('3401');">Send</button>
+        <input class="content-input" data-actor="alice" type="text" name="fname">
+        <button type="button" onclick="sendMessageToDht('3401', 'alice');">Send</button>
         <br>
         <br>
         <br>
         <h2 class="wide-letters" style="margin-top: 0">Send a message (BOB: 3402)</h2>
-        <input id="name-input" type="text" name="fname">
-        <button type="button" onclick="getDataFromHcApp('3402');">Send</button>
+        <input class="content-input" data-actor="bob" type="text" name="fname">
+        <button type="button" onclick="sendMessageToDht('3402', 'bob');">Send</button>
       </div>
     </div>
     <!-- ADD HOLOCHAIN WEBSOCKET FILES DOWNLOADED FROM GITHUB -->
@@ -122,7 +122,7 @@
   };
 
   const saveHash = (hash) => {
-    db.collection("messages").add({ hash: hash })
+    db.collection("messages").doc(hash).set({ hash: hash })
     .then(function() {
       console.log("Document successfully written!");
     })
@@ -130,7 +130,23 @@
       console.error("Error writing document: ", error);
     });
   };
+
+  const displayAllDataFromDht = (portNumber) => {
+    // get all hashes from firebase
+    getAllHashes().then((allHashes) => {
+      // remove all entries
+      resetResults();
+      // iterate over entries -> get all content from DHT
+      allHashes.forEach(hash => {
+        retrieveMessageFromDht(hash, portNumber);
+      });
+    });
+  }
+
+
 </script>
+
+
 
 
 
@@ -139,32 +155,22 @@
    * DECISION which method to use (hardcoded)
    * for demonstration purpose only
    */
-  const getDataFromHcApp = (portNumber) => {
+  const sendMessageToDht = (portNumber, actor) => {
     // HTTP IMPLEMENTATION (run $ hc run -i http)
-    makeHttpRequest(portNumber);
+    makeHttpRequest(portNumber, actor);
     // WEBSOCKET IMPLEMENTATION (run $ hc run -p 3401)
     // getDataFromWebSocket();
   }
 
-  /*
-   * HTTP request implementation
-   * This implementation is working when you run your hc app in http mode:
-   * => start the hc app by typing this command:
-   * $ hc run -i http
-   * (this will run on port 8888)
-   */
-  const makeHttpRequest = (portNumber) => {
-    // grab your name
-    console.log("custom HTTP implementation started!")
-    const input = document.getElementById("name-input")
-    const name = input.value;
-    input.value = "";
-    // create http request
+  const retrieveMessageFromDht = (hash, portNumber) => {
     const xhr = new XMLHttpRequest();
     // response handling
     xhr.onload = function () {
-      const zomeFunctionOutput = JSON.parse(JSON.parse(this.responseText).result).Ok;
-      injectResult(zomeFunctionOutput);
+      console.log(this);
+      console.log(this.responseText);
+      const message = JSON.parse(JSON.parse(this.responseText).result).Ok.content;
+      console.log(`converted back: ${message}`);
+      injectMessage(message);
     };
     // data to send (HOLOCHAIN SPECIFICATION)
     const toSend = {
@@ -174,9 +180,51 @@
       "params": {
         "instance_id": "test-instance",
         "zome": "hello",
-        "function": "hello_holo",
+        "function": "retrieve_message",
         "args": {
-          "name": name
+          "address": hash
+        }
+      }
+    };
+    xhr.open("POST", `http://127.0.0.1:${portNumber}`); // holochain server needs to be up and running
+    xhr.setRequestHeader("Content-type", "application/json");
+    xhr.send(JSON.stringify(toSend));
+  }
+
+  /*
+   * HTTP request implementation
+   * This implementation is working when you run your hc app in http mode:
+   * => start the hc app by typing this command:
+   * $ hc run -i http
+   * (this will run on port 8888)
+   */
+  const makeHttpRequest = (portNumber, actor) => {
+    // grab the message content
+    console.log("custom HTTP implementation started!")
+    const input = document.querySelector(`.content-input[data-actor=${actor}]`)
+    const content = input.value;
+    input.value = "";
+    // create http request
+    const xhr = new XMLHttpRequest();
+    // response handling
+    xhr.onload = function () {
+      const zomeFunctionOutput = JSON.parse(JSON.parse(this.responseText).result).Ok;
+      console.log(zomeFunctionOutput);
+      saveHash(zomeFunctionOutput);
+    };
+    // data to send (HOLOCHAIN SPECIFICATION)
+    const toSend = {
+      "id": "0",
+      "jsonrpc": "2.0",
+      "method": "call",
+      "params": {
+        "instance_id": "test-instance",
+        "zome": "hello",
+        "function": "create_message",
+        "args": {
+          "message": {
+            "content": content
+          }
         }
       }
     };
@@ -194,28 +242,32 @@
    * $ hc run -p 3401
    * (will run on defined port 3401)
    */
-  let holochain_connection;
-  function getDataFromWebSocket() {
-    console.log("websocket implementation started!");
-    holochain_connection = holochainclient.connect({
-      url: 'ws://localhost:3401',
-    });
-    console.log("connection esablished!");
-    holochain_connection.then(({callZome, close}) => {
-      const name = document.getElementById("name-input").value;
-      callZome('test-instance', 'hello', 'hello_holo')({"name": name})
-        .then((result) => {
-          console.log(result);
-          injectResult(JSON.parse(result).Ok);
-        })
-    })
-  }
+  // let holochain_connection;
+  // function getDataFromWebSocket() {
+  //   console.log("websocket implementation started!");
+  //   holochain_connection = holochainclient.connect({
+  //     url: 'ws://localhost:3401',
+  //   });
+  //   console.log("connection esablished!");
+  //   holochain_connection.then(({callZome, close}) => {
+  //     const name = document.getElementById("name-input").value;
+  //     callZome('test-instance', 'hello', 'hello_holo')({"name": name})
+  //       .then((result) => {
+  //         console.log(result);
+  //         injectResult(JSON.parse(result).Ok);
+  //       })
+  //   })
+  // }
 
   /*
    * INJECT RESULT TO LOG DIV
    */
-  const injectResult = (str) => {
+  const injectMessage = (str) => {
     const html = `<p style="line-height:12px; font-size:12px;">${str}</p>`;
     document.querySelector(".inject-result").insertAdjacentHTML("afterbegin", html);
-  }
+  };
+
+  const resetResults = () => {
+    document.querySelector(".inject-result").innerHTML = "";
+  };
 </script>
