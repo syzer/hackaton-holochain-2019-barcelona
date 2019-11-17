@@ -79,7 +79,7 @@
    */
   const makeHttpRequest = () => {
     // grab your name
-    const input = document.getElementById("name-input");
+
     const name = input.value;
     input.value = "";
     // create http request
@@ -124,15 +124,17 @@
     holochain_connection = holochainclient.connect({
       url: 'ws://localhost:3401',
     });
+    console.log("websocket connection esablished!");
   };
 
   function getDataFromWebSocket() {
     holochain_connection.then(({callZome, close}) => {
-    callZome('test-instance', 'hello', 'hello_holo')({args: {}})
-      .then((result) => {
-        console.log(result);
-        console.log(JSON.parse(result).Ok);
-      })
+      const name = document.getElementById("name-input").value;
+      callZome('test-instance', 'hello', 'hello_holo')({args: {"name": "asd"}})
+        .then((result) => {
+          console.log(result);
+          injectResult(JSON.parse(result).Ok);
+        })
     })
   }
 
