@@ -28,7 +28,6 @@
         </div>
       </div>
     </div>
-
     <!-- ADD HOLOCHAIN WEBSOCKET FILES DOWNLOADED FROM GITHUB -->
     <script type="text/javascript" src="hc-web-client/hc-web-client-0.5.1.browser.min.js"></script>
   </body>
@@ -62,9 +61,7 @@
   const getDataFromHcApp = () => {
     // HTTP IMPLEMENTATION (run $ hc run -i http)
     // makeHttpRequest();
-
     // WEBSOCKET IMPLEMENTATION (run $ hc run -p 3401)
-    connectWebsocket();
     getDataFromWebSocket();
   }
 
@@ -79,7 +76,8 @@
    */
   const makeHttpRequest = () => {
     // grab your name
-
+    console.log("custom HTTP implementation started!")
+    const input = document.getElementById("name-input")
     const name = input.value;
     input.value = "";
     // create http request
@@ -120,17 +118,15 @@
    * (will run on defined port 3401)
    */
   let holochain_connection;
-  const connectWebsocket = () => {
+  function getDataFromWebSocket() {
+    console.log("websocket implementation started!");
     holochain_connection = holochainclient.connect({
       url: 'ws://localhost:3401',
     });
-    console.log("websocket connection esablished!");
-  };
-
-  function getDataFromWebSocket() {
+    console.log("connection esablished!");
     holochain_connection.then(({callZome, close}) => {
       const name = document.getElementById("name-input").value;
-      callZome('test-instance', 'hello', 'hello_holo')({args: {"name": "asd"}})
+      callZome('test-instance', 'hello', 'hello_holo')({"name": name})
         .then((result) => {
           console.log(result);
           injectResult(JSON.parse(result).Ok);
