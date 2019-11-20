@@ -9,9 +9,27 @@
     <!-- FONTAWESOME -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
   </head>
-
+  <style>
+    .logo {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+    .user-section-title {
+      line-height: 0.8;
+    }
+    .logo > img {
+      max-width: 400px;
+    }
+    .small-text {
+      font-size: 14px;
+      font-weight: 300;
+    }
+  </style>
   <body>
-    <h1 id="title" class="wide-letters">DHT Universe</h1>
+    <div class="logo">
+      <img src="a-chat-logo-cropped.jpeg" alt="">
+    </div>
     <div class="flex">
       <div class="left-section">
         <div class="result pos-relative">
@@ -24,13 +42,13 @@
         </div>
       </div>
       <div class="right-section">
-        <h2 class="wide-letters" style="margin-top: 0">Send a message (ALICE: 3401)</h2>
+        <h2 class="wide-letters user-section-title" style="margin-top: 0">Send a message<br><span class="small-text">(ALICE: 3401)</span></h2>
         <input class="content-input" data-actor="alice" type="text" name="fname">
         <button type="button" onclick="sendMessageToDht('3401', 'alice');">Send</button>
         <br>
         <br>
         <br>
-        <h2 class="wide-letters" style="margin-top: 0">Send a message (BOB: 3402)</h2>
+        <h2 class="wide-letters user-section-title" style="margin-top: 0">Send a message<br><span class="small-text">(BOB: 3402)</span></h2>
         <input class="content-input" data-actor="bob" type="text" name="fname">
         <button type="button" onclick="sendMessageToDht('3402', 'bob');">Send</button>
       </div>
@@ -86,11 +104,11 @@
   .left-section {
     padding: 10px 30px;
     border-radius: 6px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
     margin-right: 60px;
     background-color: rgba(255,255,255,0.1);
     overflow: hidden;
-    max-height: 450px;
+    min-height: 450px;
   }
   .flex {
     display: flex;
